@@ -9,14 +9,17 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
     public class Categorie
     {
         private String libelle;
+
         public Categorie(String pLibelle)
         {
             this.libelle = pLibelle;
         }
+
         public String getLibelle()
         {
             return this.libelle;
         }
+
         public bool equals(Object o)
         { // pour utiliser indexOf ou contains
             String libelle = ((Categorie)o).getLibelle();

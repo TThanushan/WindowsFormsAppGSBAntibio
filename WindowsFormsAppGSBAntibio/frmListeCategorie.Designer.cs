@@ -30,7 +30,6 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.lstCategorie = new System.Windows.Forms.ListBox();
-            this.btnRechercher = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -53,22 +52,11 @@
             this.lstCategorie.TabIndex = 1;
             this.lstCategorie.SelectedIndexChanged += new System.EventHandler(this.lstCategorie_SelectedIndexChanged);
             // 
-            // btnRechercher
-            // 
-            this.btnRechercher.Location = new System.Drawing.Point(95, 243);
-            this.btnRechercher.Name = "btnRechercher";
-            this.btnRechercher.Size = new System.Drawing.Size(75, 23);
-            this.btnRechercher.TabIndex = 7;
-            this.btnRechercher.Text = "Rechercher";
-            this.btnRechercher.UseVisualStyleBackColor = true;
-            this.btnRechercher.Click += new System.EventHandler(this.btnRechercher_Click);
-            // 
             // frmListeCategorie
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(275, 317);
-            this.Controls.Add(this.btnRechercher);
             this.Controls.Add(this.lstCategorie);
             this.Controls.Add(this.label1);
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -84,7 +72,6 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ListBox lstCategorie;
-        private System.Windows.Forms.Button btnRechercher;
     }
 }
 

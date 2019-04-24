@@ -22,6 +22,12 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
             this.laCategorie = pCategorie;
             this.nombreParJour = pNombre;
         }
+
+        public String getLibelleG()
+        {
+            return this.libelleG;
+        }
+
         public String getLibelle()
         {
             return this.libelle;
@@ -38,6 +44,8 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
         {
             return this.nombreParJour;
         }
+
+        
     }
 
 }

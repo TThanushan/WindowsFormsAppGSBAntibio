@@ -22,27 +22,39 @@ namespace WindowsFormsAppGSBAntibio
 
         private void frmListeCategorie_Load(object sender, EventArgs e)
         {
+            MontrerLaListeAntibioComplete();
+        }
+
+        private void lstCategorie_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            frmResultatRecherche formResultat = new frmResultatRecherche(lesCategories[lstCategorie.SelectedIndex]);
+            formResultat.Show();
+        }
+
+
+        private void txtRecherche_TextChanged(object sender, EventArgs e)
+        {
+            /* if(txtRecherche.Text == "")
+            {
+                MontrerLaListeAntibioComplete();
+            }
+            else
+            {
+                String saisie = txtRecherche.Text;
+
+            }*/
+        }
+
+
+        private void MontrerLaListeAntibioComplete()
+        {
             DataAntibio.initialiser();
             lesCategories = DataAntibio.getLesCategories();
-            foreach(Categorie c in lesCategories)
+            foreach (Categorie c in lesCategories)
             {
                 lstCategorie.Items.Add(c.getLibelle().ToUpper());
             }
 
         }
-
-        private void lstCategorie_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //int i = lstCategorie.SelectedIndex;
-            //MessageBox.Show("Vous avez saisi " + lesCategories[i].getLibelle());
-        }
-
-        private void btnRechercher_Click(object sender, EventArgs e)
-        {
-            
-            frmResultatRecherche formResultat = new frmResultatRecherche(lesCategories[lstCategorie.SelectedIndex]);
-            formResultat.Show();
-        }
-
     }
 }

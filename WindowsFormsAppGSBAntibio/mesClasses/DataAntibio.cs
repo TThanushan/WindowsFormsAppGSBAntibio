@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace WindowsFormsAppGSBAntibio.mesClasses
 {
@@ -13,6 +15,8 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
 
         static public void initialiser()
         {
+            recupCategorie();
+            /*
             DataAntibio.lesCategories = new List<Categorie>();
             Categorie uneCategorie1 = new Categorie("Aminoglycosides");
 
@@ -48,7 +52,7 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
             DataAntibio.lesAntibiotiques = new List<Antibiotique>();
 
             AntibioParKilo unAntibioParKilo;
-            unAntibioParKilo = new AntibioParKilo("Amikacine", "Amiklin", "mg", uneCategorie1, 15, 1);
+            unAntibioParKilo = new AntibioParKilo("Amikacine", "Amiklin", "mg", uneCategorie1, 15, 2);
             DataAntibio.lesAntibiotiques.Add(unAntibioParKilo);
 
             unAntibioParKilo = new AntibioParKilo("Gentamicine", "Garamycine", "mg", uneCategorie1, 6, 1);
@@ -56,6 +60,7 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
 
             AntibioParPrise unAntibioParPrise = new AntibioParPrise("Fluconazole", "Diflucan", "mg", uneCategorie2, 300, 1);
             DataAntibio.lesAntibiotiques.Add(unAntibioParPrise);
+            */
 
         }
         static public List<Categorie> getLesCategories()
@@ -74,6 +79,80 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
             }
             return retour;
         }
+
+        public List<AntibioParPrise> getAntibioParPrises()
+        {
+            List<AntibioParPrise> retour = new List<AntibioParPrise>();
+            foreach(Antibiotique antibio in lesAntibiotiques)
+            {
+                if (antibio is AntibioParPrise)
+                    retour.Add((AntibioParPrise)antibio);
+            }
+            return retour;
+        }
+
+        public double getMoyDosePrise(String unite)
+        {
+            List<AntibioParPrise> antibioParPrises = getAntibioParPrises();
+            int doseTotal = 0;
+            double doseMoy = 0;
+            foreach(AntibioParPrise antibio in antibioParPrises)
+            {
+                if(antibio.getUnite() == unite)
+                    doseTotal += antibio.getDosePrise();
+            }
+
+            doseMoy = doseTotal / antibioParPrises.Count();
+            return doseMoy;
+        }
+
+        //Récupère les catégories.
+        public static async void recupCategorie()
+        {
+            lesCategories = new List<Categorie>();
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = client.GetAsync("http://127.0.0.1:81/antibio/apiCategorie.php").Result;
+            string fileJsonString = await response.Content.ReadAsStringAsync();
+            string[] categoriesList = fileJsonString.Split(',');
+            foreach (string categorie in categoriesList)
+            {
+                string[] ligne = categorie.Split(':');
+                char[] caractAEnlever = { '\"', '}', '{', ']', '[' };
+                String libelle = ligne[1]; // récupère la valeur
+                libelle = libelle.Trim(caractAEnlever);
+                Categorie c = new Categorie(libelle);
+                lesCategories.Add(c);
+            }
+
+
+
+
+        }
+
+        //Récupère les antibiotiques.
+        public static async void recupAntibiotique()
+        {
+            lesAntibiotiques = new List<Antibiotique>();
+
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = client.GetAsync("http://127.0.0.1:81/antibio/apiAntibiotique.php").Result;
+            string fileJsonString = await response.Content.ReadAsStringAsync();
+            string[] categoriesList = fileJsonString.Split(',');
+
+            foreach (string categorie in categoriesList)
+            {
+                string[] ligne = categorie.Split(':');
+                char[] caractAEnlever = { '\"', '}', '{', ']', '[' };
+                String libelle = ligne[1]; // récupère la valeur
+                libelle = libelle.Trim(caractAEnlever);
+                Categorie c = new Categorie(libelle);
+                lesCategories.Add(c);
+            }
+        }
+
+
     }
 }
      
