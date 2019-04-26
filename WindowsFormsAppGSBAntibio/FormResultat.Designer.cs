@@ -191,6 +191,7 @@
             this.btnEnvoyerMail.TabIndex = 19;
             this.btnEnvoyerMail.Text = "Envoyer";
             this.btnEnvoyerMail.UseVisualStyleBackColor = true;
+            this.btnEnvoyerMail.Visible = false;
             this.btnEnvoyerMail.Click += new System.EventHandler(this.btnEnvoyerMail_Click_1);
             // 
             // label4
@@ -202,6 +203,7 @@
             this.label4.Size = new System.Drawing.Size(150, 13);
             this.label4.TabIndex = 20;
             this.label4.Text = "Envoyer la posologie au mail : ";
+            this.label4.Visible = false;
             // 
             // txtMail
             // 
@@ -209,6 +211,7 @@
             this.txtMail.Name = "txtMail";
             this.txtMail.Size = new System.Drawing.Size(170, 20);
             this.txtMail.TabIndex = 21;
+            this.txtMail.Visible = false;
             // 
             // frmResultatRecherche
             // 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Newtonsoft.Json;
 
 namespace WindowsFormsAppGSBAntibio.mesClasses
 {
@@ -16,51 +17,7 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
         static public void initialiser()
         {
             recupCategorie();
-            /*
-            DataAntibio.lesCategories = new List<Categorie>();
-            Categorie uneCategorie1 = new Categorie("Aminoglycosides");
-
-            DataAntibio.lesCategories.Add(uneCategorie1);
-            Categorie uneCategorie2 = new Categorie("AntiFongiques");
-
-            DataAntibio.lesCategories.Add(uneCategorie2);
-            Categorie uneCategorie3 = new Categorie("Antiviraux");
-
-            DataAntibio.lesCategories.Add(uneCategorie3);
-            Categorie uneCategorie4 = new Categorie("Carbapénèmes");
-
-            DataAntibio.lesCategories.Add(uneCategorie4);
-            Categorie uneCategorie5 = new Categorie("Céphalosporines");
-
-            DataAntibio.lesCategories.Add(uneCategorie5);
-            Categorie uneCategorie6 = new Categorie("Macrolides");
-
-            DataAntibio.lesCategories.Add(uneCategorie6);
-            Categorie uneCategorie7 = new Categorie("Pénicillines");
-
-            DataAntibio.lesCategories.Add(uneCategorie7);
-            Categorie uneCategorie8 = new Categorie("Quinolones");
-
-            DataAntibio.lesCategories.Add(uneCategorie8);
-            Categorie uneCategorie9 = new Categorie("Sulfamidés");
-
-            DataAntibio.lesCategories.Add(uneCategorie9);
-            Categorie uneCategorie10 = new Categorie("Autres");
-
-            DataAntibio.lesCategories.Add(uneCategorie10);
-
-            DataAntibio.lesAntibiotiques = new List<Antibiotique>();
-
-            AntibioParKilo unAntibioParKilo;
-            unAntibioParKilo = new AntibioParKilo("Amikacine", "Amiklin", "mg", uneCategorie1, 15, 2);
-            DataAntibio.lesAntibiotiques.Add(unAntibioParKilo);
-
-            unAntibioParKilo = new AntibioParKilo("Gentamicine", "Garamycine", "mg", uneCategorie1, 6, 1);
-            DataAntibio.lesAntibiotiques.Add(unAntibioParKilo);
-
-            AntibioParPrise unAntibioParPrise = new AntibioParPrise("Fluconazole", "Diflucan", "mg", uneCategorie2, 300, 1);
-            DataAntibio.lesAntibiotiques.Add(unAntibioParPrise);
-            */
+            recupAntibiotique();
 
         }
         static public List<Categorie> getLesCategories()
@@ -94,7 +51,7 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
         public double getMoyDosePrise(String unite)
         {
             List<AntibioParPrise> antibioParPrises = getAntibioParPrises();
-            int doseTotal = 0;
+            double doseTotal = 0;
             double doseMoy = 0;
             foreach(AntibioParPrise antibio in antibioParPrises)
             {
@@ -114,6 +71,7 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = client.GetAsync("http://127.0.0.1:81/antibio/apiCategorie.php").Result;
             string fileJsonString = await response.Content.ReadAsStringAsync();
+
             string[] categoriesList = fileJsonString.Split(',');
             foreach (string categorie in categoriesList)
             {
@@ -134,22 +92,135 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
         public static async void recupAntibiotique()
         {
             lesAntibiotiques = new List<Antibiotique>();
-
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = client.GetAsync("http://127.0.0.1:81/antibio/apiAntibiotique.php").Result;
+            
+            //Recupere les antibioParKilo
+            HttpResponseMessage response = client.GetAsync("http://127.0.0.1:81/antibio/apiAntibiotiqueKilo.php").Result;
             string fileJsonString = await response.Content.ReadAsStringAsync();
-            string[] categoriesList = fileJsonString.Split(',');
+            string[] antibiotiquesList = fileJsonString.Split(',');
 
-            foreach (string categorie in categoriesList)
+            List<AntibioParKilo> lesAntibioParKilo = decoupeJsonEnAntibioParKilo(antibiotiquesList);
+            
+            //Recupere les antibioParPrise
+            response = client.GetAsync("http://127.0.0.1:81/antibio/apiAntibiotiquePrise.php").Result;
+            fileJsonString = await response.Content.ReadAsStringAsync();
+            antibiotiquesList = fileJsonString.Split(',');
+
+            List<AntibioParPrise> lesAntibioParPrise = decoupeJsonEnAntibioParPrise(antibiotiquesList);
+
+            assigneListeAntibio(lesAntibioParKilo, lesAntibioParPrise);
+        }
+
+        public static void assigneListeAntibio(List<AntibioParKilo> listeKilo, List<AntibioParPrise> listePrise)
+        {
+
+            foreach(AntibioParKilo antibio in listeKilo)
             {
-                string[] ligne = categorie.Split(':');
-                char[] caractAEnlever = { '\"', '}', '{', ']', '[' };
-                String libelle = ligne[1]; // récupère la valeur
-                libelle = libelle.Trim(caractAEnlever);
-                Categorie c = new Categorie(libelle);
-                lesCategories.Add(c);
+                lesAntibiotiques.Add(antibio);
             }
+
+
+            foreach(AntibioParPrise antibio in listePrise)
+            {
+                lesAntibiotiques.Add(antibio);
+            }
+        }
+
+        public static List<AntibioParPrise> decoupeJsonEnAntibioParPrise(string[] antiboList)
+        {
+            List<AntibioParPrise> listeRetour = new List<AntibioParPrise>();
+
+            int ligne = 0;
+            char[] caractAEnlever = { '\"', '}', '{', ']', '[' };
+
+            for (int i = 0; i < antiboList.Count() / 6; i++)
+            {
+
+                //libelle
+                string[] nomEtValeur = antiboList[0 + ligne].Split(':');
+                string libelle = nomEtValeur[1].Trim(caractAEnlever);
+
+                //libelleG
+                nomEtValeur = antiboList[1 + ligne].Split(':');
+                string libelleG = nomEtValeur[1].Trim(caractAEnlever);
+
+                //doseKilo
+                nomEtValeur = antiboList[2 + ligne].Split(':');
+                //Pour convertir le string en decimal, il faut remplacer le point par une virgule. Ex : 6.00 => 6,00
+                string dosePriseFormater = nomEtValeur[1].Replace('.', ',');
+
+                double dosePrise = Convert.ToDouble(dosePriseFormater.Trim(caractAEnlever));
+
+                //unite
+                nomEtValeur = antiboList[3 + ligne].Split(':');
+                string unite = nomEtValeur[1].Trim(caractAEnlever);
+
+                //nombre
+                nomEtValeur = antiboList[4 + ligne].Split(':');
+                int nombre = Convert.ToInt32(nomEtValeur[1].Trim(caractAEnlever));
+
+                //categorie
+                nomEtValeur = antiboList[5 + ligne].Split(':');
+                Categorie categorie = new Categorie(nomEtValeur[1].Trim(caractAEnlever));
+
+                listeRetour.Add(new AntibioParPrise(libelle, libelleG, unite, categorie, dosePrise, nombre));
+
+                ligne += 6;
+            }
+
+            return listeRetour;
+        }
+
+        public static List<AntibioParKilo> decoupeJsonEnAntibioParKilo(string[] antiboList)
+        {
+            List<AntibioParKilo> listeRetour = new List<AntibioParKilo>();
+
+            int ligne = 0;
+            char[] caractAEnlever = { '\"', '}', '{', ']', '[' };
+
+            for (int i = 0; i < antiboList.Count()/6; i++)
+            {
+
+                //libelle
+                string[] nomEtValeur = antiboList[0 + ligne].Split(':');
+                string libelle = nomEtValeur[1].Trim(caractAEnlever);
+
+                //libelleG
+                nomEtValeur = antiboList[1 + ligne].Split(':');
+                string libelleG = nomEtValeur[1].Trim(caractAEnlever);
+
+                //doseKilo
+                nomEtValeur = antiboList[2 + ligne].Split(':');
+                //Pour convertir le string en decimal, il faut remplacer le point par une virgule. Ex : 6.00 => 6,00
+                string doseKiloFormater = nomEtValeur[1].Replace('.', ',');
+
+                double doseKilo = Convert.ToDouble(doseKiloFormater.Trim(caractAEnlever));
+                
+                //unite
+                nomEtValeur = antiboList[3 + ligne].Split(':');
+                string unite = nomEtValeur[1].Trim(caractAEnlever);
+                
+                //nombre
+                nomEtValeur = antiboList[4 + ligne].Split(':');
+                int nombre = Convert.ToInt32(nomEtValeur[1].Trim(caractAEnlever));
+                
+                //categorie
+                nomEtValeur = antiboList[5 + ligne].Split(':');
+                Categorie categorie =  new Categorie(nomEtValeur[1].Trim(caractAEnlever));
+                
+                listeRetour.Add(new AntibioParKilo(libelle, libelleG, unite, categorie, doseKilo, nombre));
+
+                ligne += 6;
+            }
+            
+            return listeRetour;
+        }
+        
+
+        public bool estUnAntibioParKilo(String unite)
+        {
+            return unite.Contains("/kg");
         }
 
 

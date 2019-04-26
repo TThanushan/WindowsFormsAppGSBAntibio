@@ -19,7 +19,6 @@ namespace WindowsFormsAppGSBAntibio
     {
         List<Antibiotique> lesAntibiotiques;
         Categorie categorie;
-        DataAntibio dataAntibio;
         public frmResultatRecherche(Categorie uneCategorie)
         {
             InitializeComponent();
@@ -128,14 +127,12 @@ namespace WindowsFormsAppGSBAntibio
         private List<Antibiotique> RetourneListeAntibioCorrespondant(String text)
         {
             List<Antibiotique> retour = new List<Antibiotique>();
-
-
-
+            text = text.ToLower();
             if (text != "")
             {
                 foreach (Antibiotique a in this.lesAntibiotiques)
                 {
-                    if (text == a.getLibelle().Substring(0, text.Length))
+                    if (text == a.getLibelle().Substring(0, text.Length).ToLower())
                         retour.Add(a);
 
                 }

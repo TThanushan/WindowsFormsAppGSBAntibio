@@ -8,12 +8,12 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
 {
     public class AntibioParPrise : Antibiotique
     {
-        private int dosePrise;
-        public AntibioParPrise(String pLibelle, String pLibelleG, String pUnite, Categorie pCategorie, int pDosePrise, int pNombre) : base(pLibelle, pLibelleG, pUnite, pCategorie, pNombre)
+        private double dosePrise;
+        public AntibioParPrise(String pLibelle, String pLibelleG, String pUnite, Categorie pCategorie, double pDosePrise, int pNombre) : base(pLibelle, pLibelleG, pUnite, pCategorie, pNombre)
         {
             this.dosePrise = pDosePrise;
         }
-        public int getDosePrise()
+        public double getDosePrise()
         {
             return this.dosePrise;
         }

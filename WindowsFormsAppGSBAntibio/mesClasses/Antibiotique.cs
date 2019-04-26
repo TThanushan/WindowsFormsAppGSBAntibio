@@ -23,15 +23,16 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
             this.nombreParJour = pNombre;
         }
 
+        public String getLibelle()
+        {
+            return this.libelle;
+        }
+
         public String getLibelleG()
         {
             return this.libelleG;
         }
 
-        public String getLibelle()
-        {
-            return this.libelle;
-        }
         public String getUnite()
         {
             return this.unite;
@@ -45,7 +46,8 @@ namespace WindowsFormsAppGSBAntibio.mesClasses
             return this.nombreParJour;
         }
 
-        
+
+
     }
 
 }
